@@ -1,0 +1,70 @@
+<input id="file" type="file" name="file" />
+<input class="btn btn-success" type="submit" value="Upload" ng-click="uploadFile()">
+<input type="button" value="Scan File" ng-click="scanFile()">
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+    // Set API Key
+    const api_key = "2919e1b1883b6137a6e2bfdf22f8a7bbafa4a79c884c29a90c8356590519d045";
+    let scan_hash, scan_type, file_name;
+    let rescan = "0"
+
+    let uploadFile = function () {
+        let data = new FormData();
+        data.append('file', $('#file')[0].files[0]);
+        $.ajax({
+            url: 'http://localhost:8000/api/v1/upload',
+            method: "POST",
+            data: data,
+            dataType: "text",
+            cache: false,
+            crossDomain: true,
+            processData: false,
+            contentType: false,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", api_key);
+            },
+            success: function (data) {
+                console.log("Scan");
+                console.log(data)
+                alert(data)
+                let scanobj = JSON.parse(data)
+                scan_hash = scanobj.hash;
+                scan_type = scanobj.scan_type;
+                file_name = scanobj.file_name;
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(textStatus, errorThrown);
+                alert(textStatus + " " + errorThrown);
+            }
+        });
+    }
+    let scanFile = function () {
+        $.ajax({
+            url: 'http://localhost:8000/api/v1/scan',
+            method: "POST",
+            dataType: "text",
+            crossDomain: true,
+            data: {
+                "hash": scan_hash,
+                "scan_type": scan_type,
+                "file_name": file_name,
+                "re_scan": rescan
+            },
+            cache: false,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", api_key);
+            },
+            success: function (data) {
+                console.log("Scan");
+                console.log(data)
+                alert(data)
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log(textStatus, errorThrown);
+                alert(textStatus + " " + errorThrown);
+            }
+        });
+    }
+
+</script>
